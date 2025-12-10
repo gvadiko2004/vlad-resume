@@ -2,18 +2,24 @@
  * Get image path with basePath for production
  * In development, returns the path as-is. In production, adds the basePath prefix.
  */
-export const getImgPath = (path: string): string => {
-  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+export const getImgPath = (path: string = ""): string => {
+  if (!path) return "";
 
-  if (!basePath) {
+  // Если это полный URL (https / http) — возвращаем как есть
+  if (path.startsWith("http://") || path.startsWith("https://")) {
     return path;
   }
 
-  if (path.startsWith(basePath)) {
-    return path;
-  }
+  // Базовый префикс для GitHub Pages (из next.config / env)
+  const basePath =
+    process.env.NEXT_PUBLIC_BASE_PATH && process.env.NEXT_PUBLIC_BASE_PATH !== "/"
+      ? process.env.NEXT_PUBLIC_BASE_PATH
+      : "";
 
-  return `${basePath}${path}`;
+  // Гарантируем, что локальный путь начинается с "/"
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+
+  return `${basePath}${normalizedPath}`;
 };
 
 /**
